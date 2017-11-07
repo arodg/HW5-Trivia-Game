@@ -6,7 +6,7 @@
 // 6. Create Next Question button to move to next question
 // 7. After 10th question, diplay score page
 // 8. Check for correct answers
-// 9. Set up timer
+// 9. Set up timer to start when start button is clicked
 
 
 $(document).ready(function() {
@@ -16,6 +16,20 @@ $(document).ready(function() {
 	$("#startButton").click(function () {
 		$(this).hide();
 		$("#quizPage").show();
+		
+		// start timer
+		var count=25;
+		var counter=setInterval(timer, 1000);
+		
+		function timer() {
+			count=count-1;
+			if (count<=0) {
+				clearInterval(counter);
+				scorePage();
+			}
+		
+		$("#timer").html("Timer: " + count + " secs");
+		}
 	});
 
 var quiz = [
@@ -24,7 +38,8 @@ var quiz = [
 		"choice1" : "Tokyo",
 		"choice2" : "New York City",
 		"choice3" : "London",
-		"choice4" : "Mexico City"
+		"choice4" : "Mexico City",
+		"answer" : 1
 	},
 
 	{
@@ -32,7 +47,8 @@ var quiz = [
 		"choice1" : "Indonesia",
 		"choice2" : "China",
 		"choice3" : "India",
-		"choice4" : "USA"
+		"choice4" : "USA",
+		"answer" : 2
 	},
 
 	{
@@ -40,7 +56,8 @@ var quiz = [
 		"choice1" : "Malta",
 		"choice2" : "Liechtenstein",
 		"choice3" : "Monaco",
-		"choice4" : "Vatican City"
+		"choice4" : "Vatican City",
+		"answer" : 4
 	},
 
 	{
@@ -48,7 +65,8 @@ var quiz = [
 		"choice1" : "193",
 		"choice2" : "150",
 		"choice3" : "204",
-		"choice4" : "107"
+		"choice4" : "107",
+		"answer" : 1
 	},
 
 	{
@@ -56,7 +74,8 @@ var quiz = [
 		"choice1" : "Spanish",
 		"choice2" : "Russian",
 		"choice3" : "Mandarin Chinese",
-		"choice4" : "English"
+		"choice4" : "English",
+		"answer" : 3
 	},
 
 	{
@@ -64,7 +83,8 @@ var quiz = [
 		"choice1" : "USA",
 		"choice2" : "Australia",
 		"choice3" : "Canada",
-		"choice4" : "Russia"
+		"choice4" : "Russia",
+		"answer" : 4
 	},
 
 	{
@@ -72,7 +92,8 @@ var quiz = [
 		"choice1" : "35",
 		"choice2" : "15",
 		"choice3" : "6",
-		"choice4" : "53"
+		"choice4" : "53",
+		"answer" : 2
 	},
 
 	{
@@ -80,7 +101,8 @@ var quiz = [
 		"choice1" : "Norway",
 		"choice2" : "Brunei",
 		"choice3" : "Qatar",
-		"choice4" : "Germany"
+		"choice4" : "Germany",
+		"answer" : 3
 	},
 
 	{
@@ -88,7 +110,8 @@ var quiz = [
 		"choice1" : "London",
 		"choice2" : "Bangkok",
 		"choice3" : "Paris",
-		"choice4" : "Istanbul"
+		"choice4" : "Istanbul",
+		"answer" : 2
 	},
 
 	{
@@ -96,18 +119,28 @@ var quiz = [
 		"choice1" : "26",
 		"choice2" : "17",
 		"choice3" : "55",
-		"choice4" : "38"
+		"choice4" : "38",
+		"answer" : 3
 	}
 ];
 
+// for reference only
 var correctAnswer = ["Tokyo", "China", "Vatican City", "193", "Mandarin Chinese", "Russia", "15", "Qatar", "Bangkok", "55"];
 
 // var q is the current question number
 var q = 0;
 
+// scores
+var correct=0;
+var incorrect=0;
+var skipped=0;
+
 function scorePage() {
 	$("#quizPage").hide();
 	$("#scorePage").show();
+	$("#correct").append(correct);
+	$("#incorrect").append(incorrect);
+	$("#skipped").append(skipped);
 }
 	
 function displayQuiz() {
@@ -115,13 +148,29 @@ function displayQuiz() {
 	// initial question and 4 choices
 	$("#quiz").append(quiz[q].question);
 		
-	$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice1);
-	$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice2);
-	$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice3);
-	$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice4);
+	$("#choices").append('<input type="radio" name="question" value="1">').append(quiz[q].choice1);
+	$("#choices").append('<input type="radio" name="question" value="2">').append(quiz[q].choice2);
+	$("#choices").append('<input type="radio" name="question" value="3">').append(quiz[q].choice3);
+	$("#choices").append('<input type="radio" name="question" value="4">').append(quiz[q].choice4);
 
 	// move to next question for 10 questions
 	$("#nextQuestion").click(function() {
+		
+		// check answer for previous question
+		var a = $('input[name="question"]:checked').val();
+		var b = (quiz[q].answer);
+		
+		if (a==b) {
+			correct++;
+		}
+		else if (a==undefined) {
+			skipped++;
+		}
+		else {
+			incorrect++;
+		};
+		
+		// add to question counter for next question
 		q++;
 		
 		if (q===9) {
@@ -138,22 +187,17 @@ function displayQuiz() {
 		
 		$("#quiz").append(quiz[q].question);
 		
-		$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice1);
-		$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice2);
-		$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice3);
-		$("#choices").append('<input type="radio" name="question">').append(quiz[q].choice4);
-		$.each($('input[name="question"]:checked'), function() {
-			console.log(this.val);
-		});
+		$("#choices").append('<input type="radio" name="question" value="1">').append(quiz[q].choice1);
+		$("#choices").append('<input type="radio" name="question" value="2">').append(quiz[q].choice2);
+		$("#choices").append('<input type="radio" name="question" value="3">').append(quiz[q].choice3);
+		$("#choices").append('<input type="radio" name="question" value="4">').append(quiz[q].choice4);
+		
 		
 
 	});		
 }; 
 
 displayQuiz();
-
-
-
 
 
 }); //document ready function
